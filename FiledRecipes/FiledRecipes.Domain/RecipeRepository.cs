@@ -145,12 +145,12 @@ namespace FiledRecipes.Domain
                     switch (Line)
                     {
                         case SectionRecipe:
-                            Status = RecipeReadStatus.New;
+                            Status = RecipeReadStatus.New;//letar upp raden med new i dockumentet
                             continue;
-                        case SectionIngredients:
+                        case SectionIngredients://letar upp Ingrediet i text dokumentet
                             Status = RecipeReadStatus.Ingredient;
                             continue;
-                        case SectionInstructions:
+                        case SectionInstructions://letar upp Instructions i dokumentet!
                             Status = RecipeReadStatus.Instruction;
                             continue;
                     }                       
@@ -158,7 +158,7 @@ namespace FiledRecipes.Domain
                     {
                         case RecipeReadStatus.New:
                              FullRecipe = new Recipe(Line);
-                             List.Add(FullRecipe);
+                             List.Add(FullRecipe); //lägger till i listan!
                              break;
                         case RecipeReadStatus.Ingredient:
                              string[] splitedIngredients = Line.Split(new string[] { ";" }, StringSplitOptions.None);
@@ -190,7 +190,9 @@ namespace FiledRecipes.Domain
 
         public void Save()
         {
- 
+            using (StreamWriter writer = new StreamWriter(@"Recipes.txt")) //ska skriva receptet och spara det!
+            {
+            }
         }
     }
 }

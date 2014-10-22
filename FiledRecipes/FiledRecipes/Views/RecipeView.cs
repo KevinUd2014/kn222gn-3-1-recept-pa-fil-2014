@@ -14,7 +14,8 @@ namespace FiledRecipes.Views
     {
         public void Show(IRecipe recipe)
         {
- 
+            Header = recipe.Name; // anropar metoden Header och gör den = recept namnet!
+            ShowHeaderPanel();//skriver ut text-headern!
         }
         public void Show(IEnumerable<IRecipe> recipes)
         {
