@@ -127,5 +127,70 @@ namespace FiledRecipes.Domain
                 handler(this, e);
             }
         }
+
+        public void Load()
+           {
+                List<IRecipe> List = new List<IRecipe>();//instansierar lista med Recept i metoden
+
+                Recipe FullRecipe = null; // skapar en ny class variabel som alltid är null i detta stadie!
+                RecipeReadStatus Status = new RecipeReadStatus();//instansierar
+
+                using (StreamReader Recipe = new StreamReader(@"Recipes.txt"))//öppnar receptet som jag vill inplementera i programmet!
+                {
+
+                string Line; // en lokal variabel Line
+                while((Line = Recipe.ReadLine()) !=null)//medans Line är = Recipe gör detta!
+                {
+
+                    switch (Line)
+                    {
+                        case SectionRecipe:
+                            Status = RecipeReadStatus.New;
+                            continue;
+                        case SectionIngredients:
+                            Status = RecipeReadStatus.Ingredient;
+                            continue;
+                        case SectionInstructions:
+                            Status = RecipeReadStatus.Instruction;
+                            continue;
+                    }                       
+                    switch (Status)
+                    {
+                        case RecipeReadStatus.New:
+                             FullRecipe = new Recipe(Line);
+                             List.Add(FullRecipe);
+                             break;
+                        case RecipeReadStatus.Ingredient:
+                             string[] splitedIngredients = Line.Split(new string[] { ";" }, StringSplitOptions.None);
+                             if(splitedIngredients.Length % 3 != 0)
+                             {
+                                throw new FileFormatException();
+                             }
+                             Ingredient ingredient = new Ingredient(); 
+                             ingredient.Amount = splitedIngredients[0];// tar bort alla konstiga siffror och tecken med detta och fixar [0][1][2]
+                             ingredient.Measure = splitedIngredients[1];
+                             ingredient.Name = splitedIngredients[2];
+                             FullRecipe.Add(ingredient); //lägger till receptets lista i Ingredienser
+                             break;
+                        case RecipeReadStatus.Instruction:
+                             FullRecipe.Add(Line);// lägger till raderna i listan med instruktioner
+                             break;
+                        case RecipeReadStatus.Indefinite:// är något fel med koden eller det som inplementeras så kastas här ett undantag!!
+                             throw new FileFormatException();
+                    }
+                    continue;
+                }
+            }
+                 //4. Sortera listan med recept med avseende på receptens namn.
+                 //5. Tilldela avsett fält i klassen, _recipes, en referens till listan.
+                _recipes = List.OrderBy(recipe => recipe.Name).ToList();//sorterar listan med recept beroende på namn!! tilldelar även ett fält i klassen (_recipes) till listan!
+                IsModified = false;// 6. Tilldela avsedd egenskap i klassen, IsModified, ett värde som indikerar att listan med recept är oförändrad (false).
+                OnRecipesChanged(EventArgs.Empty);//7. Utlös händelse om att recept har lästs in genom att anropa metoden OnRecipesChanged och skicka med parametern EventArgs.Empty
+        }
+
+        public void Save()
+        {
+ 
+        }
     }
 }
