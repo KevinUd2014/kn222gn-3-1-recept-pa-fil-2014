@@ -130,12 +130,12 @@ namespace FiledRecipes.Domain
 
         public void Load()
            {
-                List<IRecipe> List = new List<IRecipe>();//instansierar lista med Recept i metoden
+               List<IRecipe> List = new List<IRecipe>();//instansierar lista med Recept i metoden 1. Skapa lista som kan innehålla referenser till receptobjekt
 
                 Recipe FullRecipe = null; // skapar en ny class variabel som alltid är null i detta stadie!
                 RecipeReadStatus Status = new RecipeReadStatus();//instansierar
 
-                using (StreamReader Recipe = new StreamReader(@"Recipes.txt"))//öppnar receptet som jag vill inplementera i programmet!
+                using (StreamReader Recipe = new StreamReader(@"Recipes.txt"))//öppnar receptet som jag vill inplementera i programmet! 2. Öppna textfilen för läsning.
                 {
 
                 string Line; // en lokal variabel Line
@@ -145,12 +145,12 @@ namespace FiledRecipes.Domain
                     switch (Line)
                     {
                         case SectionRecipe:
-                            Status = RecipeReadStatus.New;//letar upp raden med new i dockumentet
+                            Status = RecipeReadStatus.New;//letar upp raden med new i dockumentet …sätt status till att nästa rad som läses in kommer att vara receptets namn.
                             continue;
-                        case SectionIngredients://letar upp Ingrediet i text dokumentet
+                        case SectionIngredients://letar upp Ingrediet i text dokumentet! sätt status till att kommande rader som läses in kommer att vara receptets ingredienser.
                             Status = RecipeReadStatus.Ingredient;
                             continue;
-                        case SectionInstructions://letar upp Instructions i dokumentet!
+                        case SectionInstructions://letar upp Instructions i dokumentet! sätt status till att kommande rader som läses in kommer att vara receptets instruktioner.
                             Status = RecipeReadStatus.Instruction;
                             continue;
                     }                       
@@ -178,7 +178,6 @@ namespace FiledRecipes.Domain
                         case RecipeReadStatus.Indefinite:// är något fel med koden eller det som inplementeras så kastas här ett undantag!!
                              throw new FileFormatException();
                     }
-                    continue;
                 }
             }
                  //4. Sortera listan med recept med avseende på receptens namn.
