@@ -135,8 +135,9 @@ namespace FiledRecipes.Domain
                 Recipe FullRecipe = null; // skapar en ny class variabel som alltid är null i detta stadie!
                 RecipeReadStatus Status = new RecipeReadStatus();//instansierar
 
-                using (StreamReader Recipe = new StreamReader(@"Recipes.txt"))//öppnar receptet som jag vill inplementera i programmet! 2. Öppna textfilen för läsning.
-                {
+                using (StreamReader Recipe = new StreamReader(@"Recipes.txt"))//öppnar receptet som jag vill inplementera i programmet! 2. Öppna textfilen för läsning.
+                
+                {// då denna metod ska visa alla recept så måste recipe ta både namn, ingredienser och instruktioner och det gör den från recipes!!
 
                 string Line; // en lokal variabel Line
                 while((Line = Recipe.ReadLine()) !=null)//medans Line är = Recipe gör detta!
@@ -162,7 +163,7 @@ namespace FiledRecipes.Domain
                              break;
                         case RecipeReadStatus.Ingredient:
                              string[] splitedIngredients = Line.Split(new string[] { ";" }, StringSplitOptions.None);
-                             if(splitedIngredients.Length % 3 != 0)
+                             if(splitedIngredients.Length % 3 != 0)//om det finns mer än 3 st ; så kommer programmet kasta ett undantag!!
                              {
                                 throw new FileFormatException();
                              }

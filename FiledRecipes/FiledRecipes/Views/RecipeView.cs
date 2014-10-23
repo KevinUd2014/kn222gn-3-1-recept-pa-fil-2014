@@ -28,13 +28,14 @@ namespace FiledRecipes.Views
             }
             
             }
-        public void Show(IEnumerable<IRecipe> recipes)
+        public void Show(IEnumerable<IRecipe> recipes) 
         {
-            foreach (string Name in )
+            foreach (IRecipe AllRecipes in recipes)//i interfacet IRecipe så lagras allt och detta finns i recipes som ska skrivas ut! skapar också en ny variabel AllRecipes!
             {
-                Console.WriteLine();
+                Show(AllRecipes);//här så visar jag alla recept och skriver ut dem i konsolfönstret!
+                ContinueOnKeyPressed();// här körs mats komando och låter oss trycka en tangent och rensa fältet och välja ett till recept!!
             }
-            ContinueOnKeyPressed();
+            
         }
     }
 }
