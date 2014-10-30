@@ -132,52 +132,60 @@ namespace FiledRecipes.Domain
            {
                List<IRecipe> List = new List<IRecipe>();//instansierar lista med Recept i metoden 1. Skapa lista som kan innehålla referenser till receptobjekt
 
-                Recipe FullRecipe = null; // skapar en ny class variabel som alltid är null i detta stadie!
-                RecipeReadStatus Status = new RecipeReadStatus();//instansierar
+                Recipe fullRecipe = null; // skapar en ny class variabel som alltid är null i detta stadie!
+                RecipeReadStatus status = new RecipeReadStatus();//instansierar
 
-                using (StreamReader Recipe = new StreamReader(@"Recipes.txt"))//öppnar receptet som jag vill inplementera i programmet! 2. Öppna textfilen för läsning.
+                using (StreamReader Recipe = new StreamReader(@"Recipes.txt", System.Text.Encoding.UTF7))//öppnar receptet som jag vill inplementera i programmet! 2. Öppna textfilen för läsning.
                 
                 {// då denna metod ska visa alla recept så måste recipe ta både namn, ingredienser och instruktioner och det gör den från recipes!!
 
-                string Line; // en lokal variabel Line
-                while((Line = Recipe.ReadLine()) !=null)//medans Line är = Recipe gör detta!
+                string line; // en lokal variabel Line
+                while((line = Recipe.ReadLine()) !=null)//medans Line är = Recipe gör detta! //för att man ska kunna läsa från receptet
                 {
 
-                    switch (Line)
+                    switch (line)// stringvariabel
                     {
                         case SectionRecipe:
-                            Status = RecipeReadStatus.New;//letar upp raden med new i dockumentet …sätt status till att nästa rad som läses in kommer att vara receptets namn.
+                            status = RecipeReadStatus.New;//skapar ny, raden med new i dockumentet …sätt status till att nästa rad som läses in kommer att vara receptets namn.
                             continue;
                         case SectionIngredients://letar upp Ingrediet i text dokumentet! sätt status till att kommande rader som läses in kommer att vara receptets ingredienser.
-                            Status = RecipeReadStatus.Ingredient;
+                            status = RecipeReadStatus.Ingredient;
                             continue;
                         case SectionInstructions://letar upp Instructions i dokumentet! sätt status till att kommande rader som läses in kommer att vara receptets instruktioner.
-                            Status = RecipeReadStatus.Instruction;
+                            status = RecipeReadStatus.Instruction;
                             continue;
-                    }                       
-                    switch (Status)
-                    {
-                        case RecipeReadStatus.New:
-                             FullRecipe = new Recipe(Line);
-                             List.Add(FullRecipe); //lägger till i listan!
-                             break;
-                        case RecipeReadStatus.Ingredient:
-                             string[] splitedIngredients = Line.Split(new string[] { ";" }, StringSplitOptions.None);
-                             if(splitedIngredients.Length % 3 != 0)//om det finns mer än 3 st ; så kommer programmet kasta ett undantag!!
-                             {
-                                throw new FileFormatException();
-                             }
-                             Ingredient ingredient = new Ingredient(); 
-                             ingredient.Amount = splitedIngredients[0];// tar bort alla konstiga siffror och tecken med detta och fixar [0][1][2]
-                             ingredient.Measure = splitedIngredients[1];
-                             ingredient.Name = splitedIngredients[2];
-                             FullRecipe.Add(ingredient); //lägger till receptets lista i Ingredienser
-                             break;
-                        case RecipeReadStatus.Instruction:
-                             FullRecipe.Add(Line);// lägger till raderna i listan med instruktioner
-                             break;
-                        case RecipeReadStatus.Indefinite:// är något fel med koden eller det som inplementeras så kastas här ett undantag!!
-                             throw new FileFormatException();
+                        default:
+
+                            if (line != "")//om nu line är inget så kör den vidare
+                            {
+
+
+                                switch (status)
+                                {
+                                    case RecipeReadStatus.New:
+                                        fullRecipe = new Recipe(line);//sparar Line som Fullrecipe och sparar detta! till listan!
+                                        List.Add(fullRecipe); //lägger till i listan!
+                                        break;
+                                    case RecipeReadStatus.Ingredient:
+                                        string[] splitedIngredients = line.Split(new string[] { ";" }, StringSplitOptions.None); //skapar en array som vi sparar den nya infon i! för att kunna redigera
+                                        if (splitedIngredients.Length % 3 != 0)//om det finns mer än 3 st ; så kommer programmet kasta ett undantag!!
+                                        {
+                                            throw new FileFormatException();
+                                        }
+                                        Ingredient ingredient = new Ingredient();
+                                        ingredient.Amount = splitedIngredients[0];// tar bort alla konstiga siffror och tecken med detta och fixar [0][1][2]
+                                        ingredient.Measure = splitedIngredients[1];
+                                        ingredient.Name = splitedIngredients[2];
+                                        fullRecipe.Add(ingredient); //lägger till receptets lista i Ingredienser
+                                        break;
+                                    case RecipeReadStatus.Instruction:
+                                        fullRecipe.Add(line);// lägger till raderna i listan med instruktioner
+                                        break;
+                                    case RecipeReadStatus.Indefinite:// är något fel med koden eller det som inplementeras så kastas här ett undantag!!
+                                        throw new FileFormatException();
+                                }
+                            }
+                            break;
                     }
                 }
             }
@@ -190,9 +198,29 @@ namespace FiledRecipes.Domain
 
         public void Save()
         {
-            using (StreamWriter writer = new StreamWriter(@"Recipes.txt")) //ska skriva receptet och spara det!
+            using (StreamWriter writer = new StreamWriter(@"Recipes.txt", false, System.Text.Encoding.Default)) //ska skriva receptet och spara det!
             {
+                foreach (IRecipe recipe in _recipes)
+                {
+                    writer.WriteLine(SectionRecipe); // skriver det valda receptet!
+                    writer.WriteLine(recipe.Name);
+                    writer.WriteLine(SectionIngredients);
+
+                    foreach (IIngredient ingredient in recipe.Ingredients)
+                    {
+                        writer.WriteLine("{0};{1};{2}", ingredient.Amount, ingredient.Measure, ingredient.Name);
+                    }
+
+                    writer.WriteLine(SectionInstructions);
+
+                    foreach (string instruction in recipe.Instructions)
+                    {
+                        writer.WriteLine(instruction);
+                    }
+                }
             }
+            IsModified = false;
+            OnRecipesChanged(EventArgs.Empty);
         }
     }
 }
